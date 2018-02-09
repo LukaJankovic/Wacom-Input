@@ -5,7 +5,8 @@ public class drawingPad : Gtk.Window {
 	Gtk.DrawingArea drawing_area;
 	double x = 0;
 	double y = 0;
-
+	double pressure = 0;
+	
 	GtkClutter.Embed embed;
 	
 	public drawingPad() {
@@ -21,23 +22,26 @@ public class drawingPad : Gtk.Window {
 
 	public void callback_func(Gdk.Event anEvent) {
 
-		var source = anEvent.get_device().get_source();
+//		var source = anEvent.get_device().get_source();
 		var tool = anEvent.get_device_tool().get_tool_type();
+		var type = anEvent.get_event_type();
 
-		if (tool == Gdk.DeviceToolType.PEN) {
+		if (tool == Gdk.DeviceToolType.PEN && type == Gdk.EventType.MOTION_NOTIFY) {
 
 			//TODO: pressure
 			
 			anEvent.get_coords(out x, out y);
+			anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
 
-			x = x - 20;
-			y = y - 50;
-		  
-			var t = new Clutter.Text() {
-					text = ".",
-						x = (int)this.x,
-						y = (int)this.y
-						};
+			stdout.printf("%f\n", pressure);
+			
+			var t = new Clutter.Actor() {
+					x = (int)this.x,
+						y = (int)this.y,
+						width = (int)(pressure * 10),
+						height = (int)(pressure * 10),
+						background_color = Clutter.Color.from_string("black")};
+			
 			this.embed.get_stage().add_child(t);
 		}
 	   
