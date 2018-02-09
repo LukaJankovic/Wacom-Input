@@ -15,8 +15,15 @@ public class drawingPad : Gtk.Window {
 	public void callback_func(Gdk.Event anEvent) {
 
 		var source = anEvent.get_device().get_source();
+		var tool = anEvent.get_device_tool().get_tool_type();
+		
+//		stdout.printf("device %s did something\n", anEvent.get_device().name);
 
-		if (source == Gdk.InputSource.MOUSE) {
+		if (tool == Gdk.DeviceToolType.PEN) {
+			stdout.printf("pen activity detected\n");
+		}
+		
+		/*if (source == Gdk.InputSource.MOUSE) {
 			stdout.printf("mouse\n");
 		} else if (source == Gdk.InputSource.PEN) {
 			stdout.printf("pen\n");
@@ -24,7 +31,8 @@ public class drawingPad : Gtk.Window {
 			stdout.printf("eraser\n");
 		} else {
 			stdout.printf("something else\n");
-		}
+		}*/
+		
 		Gtk.main_do_event(anEvent);
 	}
 	
