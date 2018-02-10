@@ -10,31 +10,63 @@ public class drawingPad : Gtk.Window {
 	double y = 0;
 	double pressure = 0;
 
+   	double oldx = 0;
+	double oldy = 0;	
+	
 	public drawingPad() {
-
-		Gdk.EventFunc d = this.callback_func;
-		Gdk.Event.handler_set(d);
-
-/*		set_events(Gdk.EventMask.ALL_EVENTS_MASK);
-
-		drawing_area.motion_notify_event.connect((anEvent) => {
-				callback_func(anEvent);
-				return true;
-			});*/
 		
 		this.title = "Drawing Pad";
 		set_default_size(500, 500);
 
 		this.drawing_area = new Gtk.DrawingArea();
 		this.add(this.drawing_area);
+		
+		drawing_area.set_events(Gdk.EventMask.ALL_EVENTS_MASK);
 
+		drawing_area.motion_notify_event.connect((anEvent) => {
+
+				var tool = anEvent.get_device_tool().get_tool_type();
+				var type = anEvent.get_event_type();
+				
+				if (tool == Gdk.DeviceToolType.PEN && type == Gdk.EventType.MOTION_NOTIFY) {				
+					anEvent.get_coords(out x, out y);
+					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
+					
+					x = x - 20;
+					y = y - 50;
+					
+					var ctx = new Cairo.Context(this.drawing_surface);
+					
+					if (oldx == 0 || oldy == 0 || (oldx == 0 && oldy == 0))
+						ctx.move_to(x,y);
+					else
+						ctx.move_to(oldx,oldy);
+					
+					double a, b;
+					ctx.get_current_point(out a, out b);
+					
+					ctx.set_source_rgba(0,0,0,pressure);
+					ctx.set_line_width(pressure * 10);
+					ctx.line_to(x,y);
+					ctx.stroke();
+					
+					ctx.move_to(x,y);
+					
+					oldx = x;
+					oldy = y;
+					
+					this.drawing_area.queue_draw();
+					this.drawing_area.queue_draw_area((int)(x-(pressure*10)), (int)(y-(pressure*10)), (int)(pressure*20), (int)(pressure*20));
+				}
+							
+				return true;
+			});
+		
 		this.drawing_area.configure_event.connect((anEvent) => {
 				if (this.drawing_surface == null) {
 					this.drawing_surface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
 				}
 
-				stdout.printf("config\n");
-				
 				return true;
 			});
 		
@@ -46,51 +78,6 @@ public class drawingPad : Gtk.Window {
 				
 				return false;
 			});
-
-		
-	}
-
-	double oldx = 0;
-	double oldy = 0;
-	
-	public void callback_func(Gdk.Event anEvent) {
-		
-		var tool = anEvent.get_device_tool().get_tool_type();
-		var type = anEvent.get_event_type();
-
-		if (tool == Gdk.DeviceToolType.PEN && type == Gdk.EventType.MOTION_NOTIFY) {
-
-  			anEvent.get_coords(out x, out y);
-			anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
-
-			x = x - 20;
-			y = y - 50;
-			
-			var ctx = new Cairo.Context(this.drawing_surface);
-
-			if (oldx == 0 || oldy == 0 || (oldx == 0 && oldy == 0))
-				ctx.move_to(x,y);
-			else
-				ctx.move_to(oldx,oldy);
-			
-			double a, b;
-			ctx.get_current_point(out a, out b);
-
-			ctx.set_source_rgba(0,0,0,pressure);
-			ctx.set_line_width(pressure * 10);
-			ctx.line_to(x,y);
-			ctx.stroke();
-
-			ctx.move_to(x,y);
-
-			oldx = x;
-			oldy = y;
-			
-			this.drawing_area.queue_draw();
-			this.drawing_area.queue_draw_area((int)(x-(pressure*10)), (int)(y-(pressure*10)), (int)(pressure*20), (int)(pressure*20));
-		}
-		
-		Gtk.main_do_event(anEvent);
 	}
 }
 
