@@ -32,8 +32,8 @@ public class drawingPad : Gtk.Window {
 					anEvent.get_coords(out x, out y);
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
 					
-					x = x - 20;
-					y = y - 50;
+//					x = x - 20;
+//					y = y - 50;
 					
 					var ctx = new Cairo.Context(this.drawing_surface);
 					
@@ -56,7 +56,7 @@ public class drawingPad : Gtk.Window {
 					oldy = y;
 					
 					this.drawing_area.queue_draw();
-					this.drawing_area.queue_draw_area((int)(x-(pressure*10)), (int)(y-(pressure*10)), (int)(pressure*20), (int)(pressure*20));
+					//this.drawing_area.queue_draw_area((int)(x-(pressure*10)), (int)(y-(pressure*10)), (int)(pressure*20), (int)(pressure*20));
 				}
 							
 				return true;
