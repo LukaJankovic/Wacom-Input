@@ -24,16 +24,16 @@ public class drawingPad : Gtk.Window {
 		drawing_area.set_events(Gdk.EventMask.ALL_EVENTS_MASK);
 
 		drawing_area.motion_notify_event.connect((anEvent) => {
-
+				
 				var tool = anEvent.get_device_tool().get_tool_type();
 				var type = anEvent.get_event_type();
+				var source = anEvent.get_device().get_source();
+
+				//Can't detect pen anymore. Don't know what the fuck happened
 				
-				if (tool == Gdk.DeviceToolType.PEN && type == Gdk.EventType.MOTION_NOTIFY) {				
+				if (type == Gdk.EventType.MOTION_NOTIFY) {				
 					anEvent.get_coords(out x, out y);
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
-					
-//					x = x - 20;
-//					y = y - 50;
 					
 					var ctx = new Cairo.Context(this.drawing_surface);
 					
@@ -56,8 +56,7 @@ public class drawingPad : Gtk.Window {
 					oldy = y;
 					
 					this.drawing_area.queue_draw();
-					//this.drawing_area.queue_draw_area((int)(x-(pressure*10)), (int)(y-(pressure*10)), (int)(pressure*20), (int)(pressure*20));
-				}
+   				}
 							
 				return true;
 			});
@@ -79,6 +78,18 @@ public class drawingPad : Gtk.Window {
 				return false;
 			});
 	}
+
+	public void hide_cursor() {
+		
+		//Hide cursor
+		Gdk.Window  main_window = this.get_window();
+		Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
+		
+		Gdk.Display.get_default().get_default_seat().get_slaves(Gdk.SeatCapabilities.TABLET_STYLUS).foreach((device) => {
+				stdout.printf("what\n");
+				main_window.set_device_cursor(device, empty_cursor);
+			});
+	}
 }
 
 static int main(string[] args) {
@@ -87,7 +98,8 @@ static int main(string[] args) {
 	
 	var pad = new drawingPad();
 	pad.show_all();
-   	
+	//pad.hide_cursor();
+	
 	Gtk.main();
 	
 	return 0;
