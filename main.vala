@@ -16,12 +16,12 @@ public class drawingPad : Gtk.Window {
 		
 		this.title = "Drawing Pad";
 		set_default_size(500, 500);
-
+		
 		this.drawing_area = new Gtk.DrawingArea();
 		this.add(this.drawing_area);
 		
 		drawing_area.set_events(Gdk.EventMask.ALL_EVENTS_MASK);
-
+		
 		drawing_area.motion_notify_event.connect((anEvent) => {
 				
 				var tool = anEvent.get_device_tool().get_tool_type();
@@ -63,7 +63,7 @@ public class drawingPad : Gtk.Window {
 					
 					this.drawing_area.queue_draw();
    				} else {
-
+					
 					//Unhide cursor
 					var main_window = this.get_window();
 					main_window.set_cursor(null);
@@ -75,6 +75,15 @@ public class drawingPad : Gtk.Window {
 		this.drawing_area.configure_event.connect((anEvent) => {
 				if (this.drawing_surface == null) {
 					this.drawing_surface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
+				} else {
+					//Resize
+					var newSurface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
+
+					var ctx = new Cairo.Context(newSurface);
+					ctx.set_source_surface(this.drawing_surface, 0, 0);
+					ctx.paint();
+
+					this.drawing_surface = newSurface;
 				}
 
 				return true;
@@ -89,11 +98,6 @@ public class drawingPad : Gtk.Window {
 				return false;
 			});
 	}
-
-	public void hide_cursor() {
-		
-		
-	}
 }
 
 static int main(string[] args) {
@@ -102,7 +106,6 @@ static int main(string[] args) {
 	
 	var pad = new drawingPad();
 	pad.show_all();
-	pad.hide_cursor();
 	
 	Gtk.main();
 	
