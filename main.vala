@@ -98,7 +98,7 @@ public class drawingPad : Gtk.Window {
 						
 						this.drawing_area.queue_draw();
 						
-					} else {
+					} else
 						anEvent.get_coords(out oldx, out oldy);
 				   
 				} else 
