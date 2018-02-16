@@ -76,23 +76,31 @@ public class drawingPad : Gtk.Window {
 				if (this.drawing_surface == null) {
 					this.drawing_surface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
 				} else {
-					//Resize
-					var newSurface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
 
-					var ctx = new Cairo.Context(newSurface);
-					ctx.set_source_surface(this.drawing_surface, 0, 0);
-					ctx.paint();
+					var ctx = new Cairo.Context(this.drawing_surface);
+					double x1, y1, x2, y2;
+					ctx.clip_extents(out x1, out y1, out x2, out y2);
 
-					this.drawing_surface = newSurface;
+					int width = (int)(x2-x1);
+					int height = (int)(y2-y1);
+					
+					if (this.drawing_area.get_allocated_width() > width || this.drawing_area.get_allocated_height() > height) {
+					
+						var newSurface = this.get_window().create_similar_surface(Cairo.Content.COLOR_ALPHA, this.drawing_area.get_allocated_width(), this.drawing_area.get_allocated_height());
+						
+						ctx = new Cairo.Context(newSurface);
+						ctx.set_source_surface(this.drawing_surface, 0, 0);
+						ctx.paint();
+					
+						this.drawing_surface = newSurface;
+					}
 				}
 
 				return true;
 			});
 		
-		this.drawing_area.draw.connect((ctx) => {
-				
+		this.drawing_area.draw.connect((ctx) => {				
 				ctx.set_source_surface(this.drawing_surface, 0, 0);
-				ctx.stroke();
 				ctx.paint();
 				
 				return false;
