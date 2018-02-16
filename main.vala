@@ -11,8 +11,6 @@ public class drawingPad : Gtk.Window {
 
    	double oldx = 0;
 	double oldy = 0;
-
-	int i = 0;
 	
 	public drawingPad() {
 		
@@ -23,7 +21,6 @@ public class drawingPad : Gtk.Window {
 		white.parse("#FFF");
 		
 		this.drawing_area = new Gtk.DrawingArea();
-		this.drawing_area.override_background_color(Gtk.StateFlags.NORMAL, white);
 		this.add(this.drawing_area);
 		
 		drawing_area.set_events(Gdk.EventMask.ALL_EVENTS_MASK);
@@ -36,16 +33,10 @@ public class drawingPad : Gtk.Window {
 
 				Gdk.Window main_window = this.get_window();
 				Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
-					
-  				//stdout.printf("%i %s\n", i, anEvent.type.to_string());
-
-				i++;
-				
+				    
 				//Sometimes tool isn't detected. reboot / relog wayland to fix
 			
 				if (type == Gdk.EventType.MOTION_NOTIFY && tool == Gdk.DeviceToolType.PEN) {
-
-					//Hide cursor
 					main_window.set_cursor(empty_cursor);
 					
 					anEvent.get_coords(out x, out y);
@@ -74,7 +65,6 @@ public class drawingPad : Gtk.Window {
 					this.drawing_area.queue_draw();
 					
    				} else if (tool == Gdk.DeviceToolType.ERASER) {
-
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
 
 					stdout.printf("%f\n", pressure);
@@ -110,13 +100,9 @@ public class drawingPad : Gtk.Window {
 						
 					} else {
 						anEvent.get_coords(out oldx, out oldy);
-					}
-					
-				} else {
-					
-					//Unhide cursor
+				   
+				} else 
 					main_window.set_cursor(null);
-				}
 							
 				return true;
 			});
@@ -131,7 +117,6 @@ public class drawingPad : Gtk.Window {
 					ctx.paint();
 					
 				} else {
-
 					var ctx = new Cairo.Context(this.drawing_surface);
 					double x1, y1, x2, y2;
 					ctx.clip_extents(out x1, out y1, out x2, out y2);
