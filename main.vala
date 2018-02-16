@@ -30,7 +30,14 @@ public class drawingPad : Gtk.Window {
 
 				//Sometimes tool isn't detected. reboot / relog wayland to fix
 			
-				if (type == Gdk.EventType.MOTION_NOTIFY && tool == Gdk.DeviceToolType.PEN) {				
+				if (type == Gdk.EventType.MOTION_NOTIFY && tool == Gdk.DeviceToolType.PEN) {
+
+					//Hide cursor
+					Gdk.Window main_window = this.get_window();
+					Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
+					
+					main_window.set_cursor(empty_cursor);
+					
 					anEvent.get_coords(out x, out y);
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
 					
@@ -55,7 +62,12 @@ public class drawingPad : Gtk.Window {
 					oldy = y;
 					
 					this.drawing_area.queue_draw();
-   				}
+   				} else {
+
+					//Unhide cursor
+					var main_window = this.get_window();
+					main_window.set_cursor(null);
+				}
 							
 				return true;
 			});
@@ -80,11 +92,7 @@ public class drawingPad : Gtk.Window {
 
 	public void hide_cursor() {
 		
-		//Hide cursor
-		Gdk.Window main_window = this.get_window();
-		Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
-	    
-		main_window.set_cursor(empty_cursor);
+		
 	}
 }
 
