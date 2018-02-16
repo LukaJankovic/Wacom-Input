@@ -3,7 +3,6 @@ const int currentDevice = 1;
 public class drawingPad : Gtk.Window {
 
 	Gtk.DrawingArea drawing_area;
-
 	Cairo.Surface drawing_surface;
 	
 	double x = 0;
@@ -29,9 +28,9 @@ public class drawingPad : Gtk.Window {
 				var type = anEvent.get_event_type();
 				var source = anEvent.get_device().get_source();
 
-				//Can't detect pen anymore. Don't know what the fuck happened
-				
-				if (type == Gdk.EventType.MOTION_NOTIFY) {				
+				//Sometimes tool isn't detected. reboot / relog wayland to fix
+			
+				if (type == Gdk.EventType.MOTION_NOTIFY && tool == Gdk.DeviceToolType.PEN) {				
 					anEvent.get_coords(out x, out y);
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
 					
@@ -82,13 +81,10 @@ public class drawingPad : Gtk.Window {
 	public void hide_cursor() {
 		
 		//Hide cursor
-		Gdk.Window  main_window = this.get_window();
+		Gdk.Window main_window = this.get_window();
 		Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
-		
-		Gdk.Display.get_default().get_default_seat().get_slaves(Gdk.SeatCapabilities.TABLET_STYLUS).foreach((device) => {
-				stdout.printf("what\n");
-				main_window.set_device_cursor(device, empty_cursor);
-			});
+	    
+		main_window.set_cursor(empty_cursor);
 	}
 }
 
@@ -98,7 +94,7 @@ static int main(string[] args) {
 	
 	var pad = new drawingPad();
 	pad.show_all();
-	//pad.hide_cursor();
+	pad.hide_cursor();
 	
 	Gtk.main();
 	
