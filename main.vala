@@ -16,9 +16,6 @@ public class drawingPad : Gtk.Window {
 		
 		this.title = "Drawing Pad";
 		set_default_size(500, 500);
-
-		var white = new Gdk.RGBA();
-		white.parse("#FFF");
 		
 		this.drawing_area = new Gtk.DrawingArea();
 		this.add(this.drawing_area);
@@ -29,7 +26,6 @@ public class drawingPad : Gtk.Window {
 		
 				var tool = anEvent.get_device_tool().get_tool_type();
 				var type = anEvent.get_event_type();
-				var source = anEvent.get_device().get_source();
 
 				Gdk.Window main_window = this.get_window();
 				Gdk.Cursor empty_cursor = new Gdk.Cursor.for_display(Gdk.Display.get_default(), Gdk.CursorType.BLANK_CURSOR);
@@ -48,26 +44,19 @@ public class drawingPad : Gtk.Window {
 						ctx.move_to(x,y);
 					else
 						ctx.move_to(oldx,oldy);
-					
-					double a, b;
-					ctx.get_current_point(out a, out b);
-					
-					ctx.set_source_rgba(0,0,0,pressure);
-					ctx.set_line_width(pressure * 10);
-					ctx.line_to(x,y);
-					ctx.stroke();
-					
-					ctx.move_to(x,y);
-					
+			    
 					oldx = x;
 					oldy = y;
-					
-					this.drawing_area.queue_draw();
+
+					ctx.set_source_rgba(0,0,0,pressure);
+					ctx.set_line_width(pressure * 10);
+					ctx.line_to(oldx, oldy);
+					ctx.stroke();
+    					
+					this.drawing_area.queue_draw_area((int)x-50, (int)y-50 , 100, 100);
 					
    				} else if (tool == Gdk.DeviceToolType.ERASER) {
 					anEvent.get_axis(Gdk.AxisUse.PRESSURE, out pressure);
-
-					stdout.printf("%f\n", pressure);
 
 					if (pressure != 0) {
 					 
@@ -76,27 +65,21 @@ public class drawingPad : Gtk.Window {
 						anEvent.get_coords(out x, out y);
 						
 						var ctx = new Cairo.Context(this.drawing_surface);
-
 						
 						if (oldx == 0 || oldy == 0 || (oldx == 0 && oldy == 0))
 							ctx.move_to(x,y);
 						else
 							ctx.move_to(oldx,oldy);
 						
-						double a, b;
-						ctx.get_current_point(out a, out b);
-						
-						ctx.set_source_rgb(1,1,1);
-						ctx.set_line_width(20);
-						ctx.line_to(x,y);
-						ctx.stroke();
-						
-						ctx.move_to(x,y);
-						
 						oldx = x;
 						oldy = y;
 						
-						this.drawing_area.queue_draw();
+						ctx.set_source_rgb(1,1,1);
+						ctx.set_line_width(30);
+						ctx.line_to(oldx,oldy);
+						ctx.stroke();
+
+						this.drawing_area.queue_draw_area((int)x-50, (int)y-50 , 100, 100);
 						
 					} else
 						anEvent.get_coords(out oldx, out oldy);
